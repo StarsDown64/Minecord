@@ -1,0 +1,12 @@
+# VERY IMPORTANT, SET UP ASAP
+# ==== Discord Bot Setup ====
+token: "insertTokenHere"
+channelID: "insertChannelIDHere"
+minecordIntegrationToggle:
+  - "IDOne"
+  - "IDTwo"
+  - "InsertMoreUserIDsHere"
+
+# ==== Chat Toggles ====
+# Removes consecutive empty lines from Discord -> Minecraft messages, leaves one line
+emptyNewlineTruncation: false
