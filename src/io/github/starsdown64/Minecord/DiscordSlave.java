@@ -25,6 +25,7 @@ public final class DiscordSlave extends ListenerAdapter
 	private final MinecordPlugin master;
 	private final String token;
 	private final String channelID;
+	private final String prefix;
 	private final ArrayList<String> minecordIntegrationToggle;
 	private final boolean emptyNewlineTruncation;
 	private TextChannel channel;
@@ -36,6 +37,7 @@ public final class DiscordSlave extends ListenerAdapter
 		this.master = master;
 		this.token = master.getConfigFile().getString("token");
 		this.channelID = master.getConfigFile().getString("channelID");
+		this.prefix = master.getConfigFile().getString("prefix");
 		this.minecordIntegrationToggle = (ArrayList<String>) master.getConfigFile().getList("minecordIntegrationToggle").stream().map(obj -> Objects.toString(obj, null)).collect(Collectors.toList());
 		this.emptyNewlineTruncation = master.getConfigFile().getBoolean("emptyNewlineTruncation");
 	}
@@ -80,7 +82,7 @@ public final class DiscordSlave extends ListenerAdapter
 		String content = event.getMessage().getContentDisplay();
 		
 		// Command handler
-		if (content.startsWith("%"))
+		if (content.startsWith(prefix))
 		{
 			if (content.substring(1).equalsIgnoreCase("on"))
 			{

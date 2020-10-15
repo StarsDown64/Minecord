@@ -1,9 +1,10 @@
 main: io.github.starsdown64.Minecord.MinecordPlugin
 name: Minecord
-version: 1.0.0
+version: 1.1.0
 description: Integrates a Minecraft server chat and a Discord channel chat
 api-version: 1.16
 authors: [StarsDown64, Victuracor]
+website: https://www.spigotmc.org/resources/minecord.84702/
 softdepend: [SuperVanish, PremiumVanish]
 commands:
   minecord_on:

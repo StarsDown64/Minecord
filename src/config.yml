@@ -2,6 +2,7 @@
 # ==== Discord Bot Setup ====
 token: "insertTokenHere"
 channelID: "insertChannelIDHere"
+prefix: "%"
 minecordIntegrationToggle:
   - "IDOne"
   - "IDTwo"
