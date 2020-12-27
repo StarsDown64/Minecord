@@ -7,7 +7,7 @@ import javax.security.auth.login.LoginException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_16_R2.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_16_R3.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,6 +42,9 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	private final Object syncListD2M = new Object();
 	private final LinkedList<String> listM2D = new LinkedList<>();
 	private final LinkedList<String> listD2M = new LinkedList<>();
+	private final boolean noDeathMessages = config.getBoolean("noDeathMessages");
+	private final boolean noJoinQuitMessages = config.getBoolean("noJoinQuitMessages");
+	private final boolean noAdvancementMessages = config.getBoolean("noAdvancementMessages");
 	private DiscordSlave slave;
 	private Thread thread;
 	private boolean running = true;
@@ -407,7 +410,7 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public final void onPlayerDeath(PlayerDeathEvent event)
 	{
-		if (event.getDeathMessage() == null)
+		if (noDeathMessages || event.getDeathMessage() == null)
 			return;
 		printToDiscord(MarkdownSanitizer.escape(event.getDeathMessage()));
 	}
@@ -415,7 +418,7 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public final void onJoin(PlayerJoinEvent event)
 	{
-		if (event.getJoinMessage() == null)
+		if (noJoinQuitMessages || event.getJoinMessage() == null)
 			return;
 		printToDiscord(MarkdownSanitizer.escape(event.getJoinMessage()));
 	}
@@ -423,7 +426,7 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public final void onQuit(PlayerQuitEvent event)
 	{
-		if (event.getQuitMessage() == null)
+		if (noJoinQuitMessages || event.getQuitMessage() == null)
 			return;
 		printToDiscord(MarkdownSanitizer.escape(event.getQuitMessage()));
 	}
@@ -431,7 +434,8 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public final void onAdvancement(PlayerAdvancementDoneEvent event)
 	{
-		if (event.getAdvancement() == null ||
+		if (noAdvancementMessages ||
+			event.getAdvancement() == null ||
 			event.getAdvancement().getKey().getKey().contains("recipe/") ||
 			event.getPlayer() == null ||
 			((CraftAdvancement) event.getAdvancement()).getHandle().c() == null ||
