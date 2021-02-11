@@ -34,6 +34,8 @@ import de.myzelyam.api.vanish.VanishAPI;
 
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
+import io.github.starsdown64.Minecord.api.ExternalMessageEvent;
+
 public final class MinecordPlugin extends JavaPlugin implements Listener
 {
 	private FileConfiguration config = getConfig();
@@ -45,6 +47,7 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	private final boolean noDeathMessages = config.getBoolean("noDeathMessages");
 	private final boolean noJoinQuitMessages = config.getBoolean("noJoinQuitMessages");
 	private final boolean noAdvancementMessages = config.getBoolean("noAdvancementMessages");
+	private final boolean allowExternalMessages = config.getBoolean("allowExternalMessages");
 	private DiscordSlave slave;
 	private Thread thread;
 	private boolean running = true;
@@ -449,6 +452,14 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 			printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + " has reached the goal [" + advancement + "]");
 		else if (type.equals("task"))
 			printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + " has made the advancement [" + advancement + "]");
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public final void onExternalMessage(ExternalMessageEvent event)
+	{
+		if (!allowExternalMessages)
+			return;
+		printToDiscord(event.getMessage());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

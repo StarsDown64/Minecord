@@ -20,3 +20,7 @@ noJoinQuitMessages: false
 #
 # Disables advancement messages from showing in Discord
 noAdvancementMessages: false
+
+# ==== Plugin Toggles ====
+# Allows other plugins to send messages to Discord
+allowExternalMessages: true
