@@ -2,6 +2,7 @@ package io.github.starsdown64.Minecord;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -14,6 +15,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.DisconnectEvent;
+import net.dv8tion.jda.api.events.ReconnectedEvent;
+import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnavailableEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -30,7 +34,6 @@ public final class DiscordSlave extends ListenerAdapter
 	private final boolean emptyNewlineTruncation;
 	private TextChannel channel;
 	private JDA discord;
-	private volatile boolean prevState = true;
 	
 	public DiscordSlave(MinecordPlugin master)
 	{
@@ -70,6 +73,8 @@ public final class DiscordSlave extends ListenerAdapter
 	
 	public final void send(String message)
 	{
+		if (!discord.getStatus().equals(JDA.Status.CONNECTED))
+			return;
 		channel.sendMessage(message).queue();
 	}
 	
@@ -166,9 +171,10 @@ public final class DiscordSlave extends ListenerAdapter
 	{
 		if (event.getGuild().equals(channel.getGuild()))
 		{
-			prevState = master.getIntegration();
-			master.setIntegration(false);
-			master.getLogger().warning("Minecord has lost connection to the Guild, integration will resume when reconnected.");
+			if (master.getConnected())
+				master.setLastConnected(System.currentTimeMillis());
+			master.setConnected(false);
+			master.getLogger().warning("Minecord has lost connection to the Guild.");
 		}
 	}
 	
@@ -177,8 +183,34 @@ public final class DiscordSlave extends ListenerAdapter
 	{
 		if (event.getGuild().equals(channel.getGuild()))
 		{
-			master.setIntegration(prevState);
-			master.getLogger().info("Minecord has reconnected to the Guild.");
+			long timeLost = System.currentTimeMillis() - master.getLastConnected();
+			master.setConnected(true);
+			master.printToDiscordBypass("Minecord has reconnected to the Guild. It was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0 / 60.0) + " hours.");
 		}
+	}
+	
+	@Override
+	public void onDisconnect(DisconnectEvent event)
+	{
+		if (master.getConnected())
+			master.setLastConnected(event.getTimeDisconnected().toEpochSecond() * 1000);
+		master.setConnected(false);
+		master.getLogger().warning("Minecord has lost connection to Discord.");
+	}
+	
+	@Override
+	public void onReconnect(ReconnectedEvent event)
+	{
+		long timeLost = System.currentTimeMillis() - master.getLastConnected();
+		master.setConnected(true);
+		master.printToDiscordBypass("Minecord has reconnected to Discord. It was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0 / 60.0) + " hours.");
+	}
+	
+	@Override
+	public void onResume(ResumedEvent event)
+	{
+		long timeLost = System.currentTimeMillis() - master.getLastConnected();
+		master.setConnected(true);
+		master.printToDiscordBypass("Minecord has reconnected to Discord. It was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0 / 60.0) + " hours.");
 	}
 }

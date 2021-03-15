@@ -1,8 +1,10 @@
-package io.github.starsdown64.Minecord;
+package io.github.starsdown64.Minecord.command;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+
+import io.github.starsdown64.Minecord.MinecordPlugin;
 
 public final class CommandMinecordOff implements CommandExecutor
 {

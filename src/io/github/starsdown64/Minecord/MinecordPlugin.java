@@ -22,19 +22,18 @@ import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
-
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
 
-import de.myzelyam.api.vanish.PlayerHideEvent;
-import de.myzelyam.api.vanish.PlayerShowEvent;
 import de.myzelyam.api.vanish.VanishAPI;
 
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 
 import io.github.starsdown64.Minecord.api.ExternalMessageEvent;
+import io.github.starsdown64.Minecord.command.CommandMinecordOff;
+import io.github.starsdown64.Minecord.command.CommandMinecordOn;
 
 public final class MinecordPlugin extends JavaPlugin implements Listener
 {
@@ -48,11 +47,14 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	private final boolean noJoinQuitMessages = config.getBoolean("noJoinQuitMessages");
 	private final boolean noAdvancementMessages = config.getBoolean("noAdvancementMessages");
 	private final boolean allowExternalMessages = config.getBoolean("allowExternalMessages");
+	private final long historyAmount = config.getLong("historyAmount");
 	private DiscordSlave slave;
 	private Thread thread;
 	private boolean running = true;
 	private boolean update = false;
 	private volatile boolean integrate = true;
+	private volatile boolean connected = false;
+	private volatile long lastConnected = 0;
 	private boolean hasVanish;
 	
 	@Override
@@ -73,6 +75,7 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 				{
 					slave.start();
 					loggedIn = true;
+					connected = true;
 				}
 				catch (LoginException exception)
 				{
@@ -109,6 +112,8 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 					{
 						synchronized (syncListM2D)
 						{
+							if (!connected)
+								break;
 							if (listM2D.isEmpty())
 								break;
 							message = listM2D.removeFirst();
@@ -143,6 +148,8 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 		});
 		thread.start();
 		getServer().getPluginManager().registerEvents(this, this);
+		if (hasVanish)
+			getServer().getPluginManager().registerEvents(new SuperVanishListener(this), this);
 	}
 	
 	@Override
@@ -164,6 +171,28 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	public final boolean getIntegration()
 	{
 		return integrate;
+	}
+	
+	public final void setConnected(boolean connected)
+	{
+		this.connected = connected;
+	}
+	
+	public final boolean getConnected()
+	{
+		return connected;
+	}
+	
+	public final void setLastConnected(long lastConnected)
+	{
+		this.lastConnected = lastConnected;
+	}
+	
+	public final long getLastConnected()
+	{
+		if (connected)
+			lastConnected = System.currentTimeMillis();
+		return lastConnected;
 	}
 	
 	public final DiscordSlave getSlave()
@@ -192,6 +221,30 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	public final void printToDiscord(String message)
 	{
 		message = ChatColor.stripColor(message);
+		if (message == null || message.isEmpty())
+			return;
+		if (!connected && listM2D.size() >= historyAmount)
+			return;
+		synchronized (syncSleep)
+		{
+			synchronized (syncListM2D)
+			{
+				listM2D.addLast(message);
+			}
+			update = true;
+			syncSleep.notify();
+		}
+	}
+	
+	/**
+	 * Send a message to discord bypassing restrictions.
+	 * This method is meant to provide debug or system info only.
+	 * Do not use this for normal messages.
+	 * 
+	 * @param message The debug or system message to send
+	 */
+	public final void printToDiscordBypass(String message)
+	{
 		if (message == null || message.isEmpty())
 			return;
 		synchronized (syncSleep)
@@ -352,13 +405,13 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 		}
 		else if (commandLowerCase.startsWith("/sv login ") || commandLowerCase.equals("/sv login"))
 		{
-			if (!event.getPlayer().hasPermission("sv.login"))
+			if (!event.getPlayer().hasPermission("sv.login") || !hasVanish)
 				return;
 			onJoin(new PlayerJoinEvent(event.getPlayer(), event.getPlayer().getName() + " joined the game"));
 		}
 		else if (commandLowerCase.startsWith("/sv logout ") || commandLowerCase.equals("/sv logout"))
 		{
-			if (!event.getPlayer().hasPermission("sv.logout"))
+			if (!event.getPlayer().hasPermission("sv.logout") || !hasVanish)
 				return;
 			onQuit(new PlayerQuitEvent(event.getPlayer(), event.getPlayer().getName() + " left the game"));
 		}
@@ -423,7 +476,7 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 	{
 		if (noJoinQuitMessages || event.getJoinMessage() == null)
 			return;
-		printToDiscord(MarkdownSanitizer.escape(event.getJoinMessage()));
+		printToDiscord(MarkdownSanitizer.escape(event.getJoinMessage().toString()));
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -460,21 +513,5 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 		if (!allowExternalMessages)
 			return;
 		printToDiscord(event.getMessage());
-	}
-	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public final void onVanish(PlayerHideEvent event)
-	{
-		if (event.isSilent())
-			return;
-		onQuit(new PlayerQuitEvent(event.getPlayer(), event.getPlayer().getName() + " left the game"));
-	}
-	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public final void onAppear(PlayerShowEvent event)
-	{
-		if (event.isSilent())
-			return;
-		onJoin(new PlayerJoinEvent(event.getPlayer(), event.getPlayer().getName() + " joined the game"));
 	}
 }

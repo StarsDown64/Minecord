@@ -8,16 +8,20 @@ minecordIntegrationToggle:
   - "IDTwo"
   - "InsertMoreUserIDsHere"
 
+# ==== Config ====
+# The amount of messages to store during a disconnect
+historyAmount: 25
+
 # ==== Chat Toggles ====
 # Removes consecutive empty lines from Discord -> Minecraft messages, leaves one line
 emptyNewlineTruncation: false
-#
+
 # Disables death messages from showing in Discord
 noDeathMessages: false
-#
+
 # Disables joining/leaving messages from showing in Discord
 noJoinQuitMessages: false
-#
+
 # Disables advancement messages from showing in Discord
 noAdvancementMessages: false
 
