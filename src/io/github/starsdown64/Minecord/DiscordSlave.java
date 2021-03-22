@@ -185,6 +185,8 @@ public final class DiscordSlave extends ListenerAdapter
 		{
 			long timeLost = System.currentTimeMillis() - master.getLastConnected();
 			master.setConnected(true);
+			if (timeLost < 600000)
+				return;
 			master.printToDiscordBypass("Minecord has reconnected to the Guild. It was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0 / 60.0) + " hours.");
 		}
 	}
@@ -203,6 +205,8 @@ public final class DiscordSlave extends ListenerAdapter
 	{
 		long timeLost = System.currentTimeMillis() - master.getLastConnected();
 		master.setConnected(true);
+		if (timeLost < 600000)
+			return;
 		master.printToDiscordBypass("Minecord has reconnected to Discord. It was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0 / 60.0) + " hours.");
 	}
 	
@@ -211,6 +215,8 @@ public final class DiscordSlave extends ListenerAdapter
 	{
 		long timeLost = System.currentTimeMillis() - master.getLastConnected();
 		master.setConnected(true);
+		if (timeLost < 600000)
+			return;
 		master.printToDiscordBypass("Minecord has reconnected to Discord. It was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0 / 60.0) + " hours.");
 	}
 }
