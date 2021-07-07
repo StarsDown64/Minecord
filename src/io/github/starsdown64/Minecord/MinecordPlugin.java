@@ -7,7 +7,7 @@ import javax.security.auth.login.LoginException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_16_R3.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_17_R1.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Team;
 import org.json.simple.parser.JSONParser;
@@ -263,12 +264,27 @@ public final class MinecordPlugin extends JavaPlugin implements Listener
 		String output = "**Players Online:**\n```\n";
 		for (Player p : getServer().getOnlinePlayers())
 		{
-			if (hasVanish && VanishAPI.isInvisible(p))
+			if (isVanished(p))
 				continue;
 			output += ChatColor.stripColor(teamedName(p)) + "\n";
 		}
 		output += "```";
 		return (output.equals("**Players Online:**\n```\n```")) ? "**No players online**" : output;
+	}
+	
+	private final boolean isVanished(Player p)
+	{
+		if (hasVanish)
+			return VanishAPI.isInvisible(p);
+		else
+		{
+			for (MetadataValue meta : p.getMetadata("vanished"))
+			{
+				if (meta.asBoolean())
+					return true;
+			}
+			return false;
+		}
 	}
 	
 	private final String teamedName(Player p)

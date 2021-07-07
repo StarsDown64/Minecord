@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"io.github.starsdown64.Minecord.api","l":"ExternalMessageEvent"}]
+typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"io.github.starsdown64.Minecord.api","l":"ExternalMessageEvent"}];updateSearchResults();
