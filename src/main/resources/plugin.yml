@@ -1,33 +1,33 @@
-main: io.github.starsdown64.Minecord.MinecordPlugin
+main: io.github.starsdown64.minecord.MinecordPlugin
 name: Minecord
-version: 1.5.0
+version: 1.6.0
 description: Integrates a Minecraft server chat and a Discord channel chat
-api-version: 1.17
+api-version: 1.18
 authors: [StarsDown64, Victuracor]
 website: https://www.spigotmc.org/resources/minecord.84702/
 softdepend: [SuperVanish, PremiumVanish]
 commands:
   minecord_on:
-    description: Turns integration on
+    description: Turns chat integration on
     permission: minecord.integration.toggle
     permission-message: You do not have permission to toggle integration.
     usage: "Usage: /<command>"
   minecord_off:
-    description: Turns integration off
+    description: Turns chat integration off
     permission: minecord.integration.toggle
     permission-message: You do not have permission to toggle integration.
     usage: "Usage: /<command>"
 permissions:
   minecord.*:
-    description: All Minecord commands
+    description: Allows access to all Minecord commands
     default: op
     children:
       minecord.integration.*: true
   minecord.integration.*:
-    description: All Minecord integration commands
+    description: Allows access to all Minecord integration commands
     default: op
     children:
       minecord.integration.toggle: true
   minecord.integration.toggle:
-    description: Toggling integration on and off
+    description: Allows toggling integration on and off
     default: op
