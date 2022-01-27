@@ -1,0 +1,79 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
+    id 'maven-publish'
+}
+
+group 'io.github.starsdown64'
+archivesBaseName = 'minecord'
+version '1.6.1'
+
+sourceCompatibility = 1.17
+targetCompatibility = 1.17
+
+repositories {
+    mavenCentral()
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/public/' }
+    maven { url 'https://jitpack.io/' }
+    mavenLocal()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    compileOnly 'org.spigotmc:spigot:1.18.1-R0.1-SNAPSHOT'
+    compileOnly 'com.github.LeonMangler:SuperVanish:6.2.6-4'
+    implementation('com.github.DV8FromTheWorld:JDA:v4.4.0')
+    {
+        exclude module: 'opus-java'
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    archiveBaseName.set('Minecord')
+    archiveClassifier.set('')
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set('javadoc')
+    from javadoc
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Minecord'
+                description = 'Connect chat between Minecraft and Discord!'
+                url = 'https://www.spigotmc.org/resources/minecord.84702/'
+                licenses {
+                    license {
+                        name = 'ISC'
+                        url = 'https://opensource.org/licenses/ISC'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'StarsDown64'
+                        url = 'https://starsdown64.me/'
+                    }
+                }
+            }
+        }
+    }
+}
