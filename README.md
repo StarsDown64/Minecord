@@ -10,7 +10,7 @@ View the API [here](https://starsdown64.github.io/Minecord).
 
 To add Minecord to your project:
 
-###Gradle:
+### Gradle:
 
 ```
 repositories {
@@ -22,7 +22,7 @@ dependencies {
 }
 ```
 
-###Maven:
+### Maven:
 
 ```
 <repositories>
