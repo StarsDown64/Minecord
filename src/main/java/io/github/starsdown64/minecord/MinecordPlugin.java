@@ -9,7 +9,7 @@ import io.github.starsdown64.minecord.listeners.SuperVanishListener;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_18_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_18_R2.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -201,8 +201,8 @@ public class MinecordPlugin extends JavaPlugin implements Listener
 
     public final void printToDiscord(String message)
     {
-        message = ChatColor.stripColor(message);
-        if (message == null || message.isEmpty())
+        String strippedMessage = ChatColor.stripColor(message);
+        if (strippedMessage == null || strippedMessage.isEmpty())
             return;
         if (!connected && listM2D.size() >= historyAmount)
             return;
@@ -210,7 +210,7 @@ public class MinecordPlugin extends JavaPlugin implements Listener
         {
             synchronized (syncListM2D)
             {
-                listM2D.addLast(message);
+                listM2D.addLast(strippedMessage);
             }
             update = true;
             syncSleep.notify();

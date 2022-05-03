@@ -135,7 +135,7 @@ public class DiscordSlave extends ListenerAdapter {
             LinkedList<Integer> toRemove = new LinkedList<>();
             LinkedList<String> contentList = new LinkedList<>(Arrays.asList(content.split("\n")));
             for (int i = 0; i < contentList.size(); i++)
-                if (!(contentList.size() == i + 1) && contentList.get(i + 1).isBlank() && contentList.get(i).isBlank())
+                if (contentList.size() != i + 1 && contentList.get(i + 1).isBlank() && contentList.get(i).isBlank())
                     toRemove.addLast(i);
             while (toRemove.size() > 0)
             {
