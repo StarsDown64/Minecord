@@ -122,7 +122,7 @@ public class DiscordSlave extends ListenerAdapter {
             }
             else
             {
-                message.getChannel().sendMessage(message.getAuthor().getAsMention() + ", taht is not a valid command.").queue();
+                message.getChannel().sendMessage(message.getAuthor().getAsMention() + ", that is not a valid command.").queue();
                 return;
             }
         }
