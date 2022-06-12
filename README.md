@@ -10,6 +10,6 @@ View the API on [GitHub](https://github.com/StarsDown64/Minecord-API) or view th
 ## Bundled
 Dependencies:
 
-[Minecord-API](https://github.com/StarsDown64/Minecord-API) (v1.1.0)
+[Minecord-API](https://github.com/StarsDown64/Minecord-API) (v1.2.0)
 
 [JDA](https://github.com/DV8FromTheWorld/JDA) (v4.4.0)
