@@ -507,7 +507,7 @@ public class MinecordPlugin extends JavaPlugin implements Listener
     {
         if (noJoinQuitMessages || event.getJoinMessage() == null)
             return;
-        printToDiscord(MarkdownSanitizer.escape(event.getJoinMessage().toString()));
+        printToDiscord(MarkdownSanitizer.escape(event.getJoinMessage()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
