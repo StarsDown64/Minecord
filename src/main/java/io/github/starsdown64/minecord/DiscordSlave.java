@@ -1,5 +1,6 @@
 package io.github.starsdown64.minecord;
 
+import io.github.starsdown64.minecord.api.UnrecognizedCommandEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.api.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnavailableEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import javax.security.auth.login.LoginException;
@@ -19,13 +21,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class DiscordSlave extends ListenerAdapter {
+public class DiscordSlave extends ListenerAdapter
+{
     private final MinecordPlugin master;
     private final String token;
     private final String channelID;
     private final String prefix;
     private final ArrayList<String> minecordIntegrationToggle;
     private final boolean emptyNewlineTruncation;
+    private final boolean allowExternalCommandHandling;
     private TextChannel channel;
     private JDA discord;
 
@@ -37,6 +41,7 @@ public class DiscordSlave extends ListenerAdapter {
         this.prefix = master.getConfigFile().getString("prefix");
         this.minecordIntegrationToggle = (ArrayList<String>) master.getConfigFile().getStringList("minecordIntegrationToggle");
         this.emptyNewlineTruncation = master.getConfigFile().getBoolean("emptyNewlineTruncation");
+        this.allowExternalCommandHandling = master.getConfigFile().getBoolean("allowExternalCommandHandling");
     }
 
     public final void start() throws LoginException, NumberFormatException
@@ -118,6 +123,13 @@ public class DiscordSlave extends ListenerAdapter {
             else if (content.substring(prefix.length()).equalsIgnoreCase("tab"))
             {
                 message.getChannel().sendMessage(master.getFormattedTabMenu()).queue();
+                return;
+            }
+            else if (allowExternalCommandHandling)
+            {
+                UnrecognizedCommandEvent externalHandler = new UnrecognizedCommandEvent(content.substring(prefix.length()), message.getAuthor());
+                master.getServer().getPluginManager().callEvent(externalHandler);
+                message.getChannel().sendMessage(externalHandler.getReply()).queue();
                 return;
             }
             else

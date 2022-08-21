@@ -5,7 +5,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class CommandMinecordOn implements CommandExecutor {
+public class CommandMinecordOn implements CommandExecutor
+{
     private final MinecordPlugin master;
 
     public CommandMinecordOn(MinecordPlugin master)

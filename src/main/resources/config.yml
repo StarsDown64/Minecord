@@ -28,3 +28,6 @@ noAdvancementMessages: false
 # ==== Plugin Toggles ====
 # Allows other plugins to send messages to Discord
 allowExternalMessages: true
+
+# Allows other plugins to handle unrecognized commands in Discord
+allowExternalMessageHandling: true

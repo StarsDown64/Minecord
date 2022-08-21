@@ -9,7 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class SuperVanishListener implements Listener {
+public class SuperVanishListener implements Listener
+{
     private final MinecordPlugin master;
 
     public SuperVanishListener(MinecordPlugin master)

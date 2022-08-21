@@ -456,12 +456,12 @@ public class MinecordPlugin extends JavaPlugin implements Listener
         if (commandLowerCase.startsWith("say "))
         {
             String message = command.substring(4);
-            printToDiscord("[Server] " + message);
+            printToDiscord("[" + event.getSender().getName() + "] " + message);
         }
         else if (commandLowerCase.startsWith("me "))
         {
             String message = command.substring(3);
-            printToDiscord("* Server " + message);
+            printToDiscord("* " + event.getSender().getName() + " " + message);
         }
         else if (commandLowerCase.startsWith("tellraw @a "))
         {
@@ -479,12 +479,12 @@ public class MinecordPlugin extends JavaPlugin implements Listener
         if (commandLowerCase.startsWith("say "))
         {
             String message = command.substring(4);
-            printToDiscord("[Server] " + message);
+            printToDiscord("[" + event.getSender().getName() + "] " + message);
         }
         else if (commandLowerCase.startsWith("me "))
         {
             String message = command.substring(3);
-            printToDiscord("* Server " + message);
+            printToDiscord("* " + event.getSender().getName() + " " + message);
         }
         else if (commandLowerCase.startsWith("tellraw @a "))
         {
