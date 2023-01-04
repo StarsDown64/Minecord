@@ -1,4 +1,10 @@
 # Minecord
+![status](https://img.shields.io/badge/status-pr%20only-important)
+![status date](https://img.shields.io/badge/status%20update-january%202023-informational)
+
+
+![GitHub all releases](https://img.shields.io/github/downloads/StarsDown64/Minecord/total)
+![license](https://img.shields.io/badge/license-ISC-brightgreen)
 
 Connect chat between Minecraft and Discord!
 
