@@ -30,4 +30,4 @@ noAdvancementMessages: false
 allowExternalMessages: true
 
 # Allows other plugins to handle unrecognized commands in Discord
-allowExternalMessageHandling: true
+allowExternalCommandHandling: true

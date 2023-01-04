@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnavailableEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import javax.security.auth.login.LoginException;
@@ -60,6 +59,7 @@ public class DiscordSlave extends ListenerAdapter
             }
         }
         this.channel = discord.getTextChannelById(channelID);
+        channel.sendMessage("[Minecord] Minecraft is now connected to Discord").queue();
     }
 
     public final void stop()

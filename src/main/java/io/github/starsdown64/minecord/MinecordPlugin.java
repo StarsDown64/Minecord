@@ -9,7 +9,7 @@ import io.github.starsdown64.minecord.listeners.SuperVanishListener;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_19_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_19_R2.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
