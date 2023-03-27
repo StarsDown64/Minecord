@@ -9,7 +9,7 @@ import io.github.starsdown64.minecord.listeners.SuperVanishListener;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_19_R2.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_19_R3.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -521,10 +521,10 @@ public class MinecordPlugin extends JavaPlugin implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public final void onAdvancement(PlayerAdvancementDoneEvent event)
     {
-        if (noAdvancementMessages || event.getAdvancement().getKey().getKey().contains("recipe/") || ((CraftAdvancement) event.getAdvancement()).getHandle().c() == null || event.getAdvancement().getKey().toString().contains("root"))
+        if (noAdvancementMessages || event.getAdvancement().getKey().getKey().contains("recipe/") || ((CraftAdvancement) event.getAdvancement()).getHandle().d() == null || event.getAdvancement().getKey().toString().contains("root"))
             return;
-        String advancement = ((CraftAdvancement) event.getAdvancement()).getHandle().c().a().getString();
-        String type = ((CraftAdvancement) event.getAdvancement()).getHandle().c().e().a();
+        String advancement = ((CraftAdvancement) event.getAdvancement()).getHandle().d().a().getString();
+        String type = ((CraftAdvancement) event.getAdvancement()).getHandle().d().e().a();
         if (type.equals("challenge"))
             printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + " has completed the challenge [" + advancement + "]");
         else if (type.equals("goal"))
