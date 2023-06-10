@@ -4,14 +4,16 @@ import io.github.starsdown64.minecord.api.UnrecognizedCommandEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.DisconnectEvent;
-import net.dv8tion.jda.api.events.ReconnectedEvent;
-import net.dv8tion.jda.api.events.ResumedEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnavailableEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.session.SessionDisconnectEvent;
+import net.dv8tion.jda.api.events.session.SessionRecreateEvent;
+import net.dv8tion.jda.api.events.session.SessionResumeEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import javax.security.auth.login.LoginException;
@@ -19,24 +21,25 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 public class DiscordSlave extends ListenerAdapter
 {
     private final MinecordPlugin master;
     private final String token;
-    private final String channelID;
+    private final List<String> channelIDs;
     private final String prefix;
     private final ArrayList<String> minecordIntegrationToggle;
     private final boolean emptyNewlineTruncation;
     private final boolean allowExternalCommandHandling;
-    private TextChannel channel;
+    private final List<TextChannel> channels = new LinkedList<>();
     private JDA discord;
 
     public DiscordSlave(MinecordPlugin master)
     {
         this.master = master;
         this.token = master.getConfigFile().getString("token");
-        this.channelID = master.getConfigFile().getString("channelID");
+        this.channelIDs = Arrays.stream(master.getConfigFile().getString("channelID").split(",")).toList();
         this.prefix = master.getConfigFile().getString("prefix");
         this.minecordIntegrationToggle = (ArrayList<String>) master.getConfigFile().getStringList("minecordIntegrationToggle");
         this.emptyNewlineTruncation = master.getConfigFile().getBoolean("emptyNewlineTruncation");
@@ -45,7 +48,7 @@ public class DiscordSlave extends ListenerAdapter
 
     public final void start() throws LoginException, NumberFormatException
     {
-        this.discord = JDABuilder.createLight(token).addEventListeners(this).build();
+        this.discord = JDABuilder.createLight(token).addEventListeners(this).enableIntents(GatewayIntent.MESSAGE_CONTENT).build();
         while (true)
         {
             try
@@ -58,8 +61,15 @@ public class DiscordSlave extends ListenerAdapter
                 exception.printStackTrace();
             }
         }
-        this.channel = discord.getTextChannelById(channelID);
-        channel.sendMessage("[Minecord] Minecraft is now connected to Discord").queue();
+        for (String channelID : channelIDs) {
+            TextChannel channel = discord.getTextChannelById(channelID);
+            if (channel == null) {
+                Bukkit.getLogger().warning("[Minecord] Channel ID " + channelID + " is invalid");
+                continue;
+            }
+            channels.add(channel);
+            channel.sendMessage("[Minecord] Minecraft is now connected to Discord").queue();
+        }
     }
 
     public final void stop()
@@ -72,14 +82,16 @@ public class DiscordSlave extends ListenerAdapter
     {
         if (!discord.getStatus().equals(JDA.Status.CONNECTED))
             return;
-        channel.sendMessage(message).queue();
+        for (TextChannel channel : channels) {
+            channel.sendMessage(message).queue();
+        }
     }
 
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event)
+    public void onMessageReceived(MessageReceivedEvent event)
     {
         Message message = event.getMessage();
-        if (!message.getChannel().getId().equals(channelID) || message.getAuthor().isBot())
+        if (!channelIDs.contains(message.getChannel().getId()) || message.getAuthor().isBot())
             return;
         String content = message.getContentDisplay();
 
@@ -139,7 +151,7 @@ public class DiscordSlave extends ListenerAdapter
             }
         }
 
-        String author = message.getAuthor().getAsTag();
+        String author = message.getAuthor().getEffectiveName();
         if (ChatColor.stripColor(content).replaceAll("§", "").isBlank())
             return;
         if (emptyNewlineTruncation)
@@ -157,37 +169,39 @@ public class DiscordSlave extends ListenerAdapter
             }
             content = String.join("\n", contentList);
         }
-        content = content.replaceAll("\n", "\n<" + author + "> ");
-        master.printToMinecraft("<" + author + "> " + content);
+        content = content.replaceAll("\n", "\n<@" + author + "> ");
+        master.printToMinecraft("<@" + author + "> " + content);
     }
 
     @Override
     public void onGuildUnavailable(GuildUnavailableEvent event)
     {
-        if (event.getGuild().equals(channel.getGuild()))
-        {
-            if (master.getConnected())
-                master.setLastConnected(System.currentTimeMillis());
-            master.setConnected(false);
-            master.getLogger().warning("Minecord has lost connection to the Guild.");
+        for (TextChannel channel : channels) {
+            if (event.getGuild().equals(channel.getGuild())) {
+                if (master.getConnected())
+                    master.setLastConnected(System.currentTimeMillis());
+                master.setConnected(false);
+                master.getLogger().warning("Minecord has lost connection to the Guild.");
+            }
         }
     }
 
     @Override
     public void onGuildAvailable(GuildAvailableEvent event)
     {
-        if (event.getGuild().equals(channel.getGuild()))
-        {
-            long timeLost = System.currentTimeMillis() - master.getLastConnected();
-            master.setConnected(true);
-            if (timeLost < 600000)
-                return;
-            master.printToDiscordBypass("Minecord has reconnected to the Guild. it was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0) + " minutes.");
+        for (TextChannel channel : channels) {
+            if (event.getGuild().equals(channel.getGuild())) {
+                long timeLost = System.currentTimeMillis() - master.getLastConnected();
+                master.setConnected(true);
+                if (timeLost < 600000)
+                    return;
+                master.printToDiscordBypass("Minecord has reconnected to the Guild. it was disconnected for " + new DecimalFormat("#.##").format(timeLost / 1000.0 / 60.0) + " minutes.");
+            }
         }
     }
 
     @Override
-    public void onDisconnect(DisconnectEvent event)
+    public void onSessionDisconnect(SessionDisconnectEvent event)
     {
         if (master.getConnected())
             master.setLastConnected(event.getTimeDisconnected().toEpochSecond() * 1000);
@@ -196,7 +210,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onReconnected(ReconnectedEvent event)
+    public void onSessionRecreate(SessionRecreateEvent event)
     {
         long timeLost = System.currentTimeMillis() - master.getLastConnected();
         master.setConnected(true);
@@ -206,7 +220,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onResumed(ResumedEvent event)
+    public void onSessionResume(SessionResumeEvent event)
     {
         long timeLost = System.currentTimeMillis() - master.getLastConnected();
         master.setConnected(true);
