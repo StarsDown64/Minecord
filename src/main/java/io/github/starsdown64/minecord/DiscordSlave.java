@@ -32,6 +32,8 @@ public class DiscordSlave extends ListenerAdapter
     private final ArrayList<String> minecordIntegrationToggle;
     private final boolean emptyNewlineTruncation;
     private final boolean allowExternalCommandHandling;
+
+    private final boolean showDisplayName;
     private final List<TextChannel> channels = new LinkedList<>();
     private JDA discord;
 
@@ -44,6 +46,7 @@ public class DiscordSlave extends ListenerAdapter
         this.minecordIntegrationToggle = (ArrayList<String>) master.getConfigFile().getStringList("minecordIntegrationToggle");
         this.emptyNewlineTruncation = master.getConfigFile().getBoolean("emptyNewlineTruncation");
         this.allowExternalCommandHandling = master.getConfigFile().getBoolean("allowExternalCommandHandling");
+        this.showDisplayName = master.getConfigFile().getBoolean("showDisplayName");
     }
 
     public final void start() throws LoginException, NumberFormatException
@@ -151,7 +154,7 @@ public class DiscordSlave extends ListenerAdapter
             }
         }
 
-        String author = message.getAuthor().getEffectiveName();
+        String author = showDisplayName ? message.getAuthor().getEffectiveName() : message.getAuthor().getName();
         if (ChatColor.stripColor(content).replaceAll("§", "").isBlank())
             return;
         if (emptyNewlineTruncation)
