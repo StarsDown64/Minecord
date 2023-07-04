@@ -89,7 +89,7 @@ public class DiscordSlave extends ListenerAdapter
     public void onMessageReceived(MessageReceivedEvent event)
     {
         Message message = event.getMessage();
-        if (channelID != message.getChannel().getId() || message.getAuthor().isBot())
+        if (!channelID.equals(message.getChannel().getId()) || message.getAuthor().isBot())
             return;
         String content = message.getContentDisplay();
 
