@@ -31,3 +31,6 @@ allowExternalMessages: true
 
 # Allows other plugins to handle unrecognized commands in Discord
 allowExternalCommandHandling: true
+
+# Whether to show the display name instead of the username for Discord -> Minecraft messages
+useDisplayName: false

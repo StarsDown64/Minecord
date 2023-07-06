@@ -5,7 +5,7 @@ plugins {
 
 group 'io.github.starsdown64'
 archivesBaseName = 'minecord'
-version '1.11.0'
+version '1.12.0'
 
 sourceCompatibility = 1.17
 targetCompatibility = 1.17
@@ -20,9 +20,9 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
-    compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.20-R0.1-SNAPSHOT'
     implementation 'com.github.StarsDown64:Minecord-API:1.4.0'
-    implementation('com.github.DV8FromTheWorld:JDA:v4.4.0')
+    implementation('net.dv8tion:JDA:5.0.0-beta.10')
     {
         exclude module: 'opus-java'
     }
