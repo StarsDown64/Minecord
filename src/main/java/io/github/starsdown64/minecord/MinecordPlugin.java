@@ -8,8 +8,10 @@ import io.github.starsdown64.minecord.command.CommandMinecordOn;
 import io.github.starsdown64.minecord.listeners.SuperVanishListener;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_20_R1.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -521,16 +523,25 @@ public class MinecordPlugin extends JavaPlugin implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public final void onAdvancement(PlayerAdvancementDoneEvent event)
     {
-        if (noAdvancementMessages || event.getAdvancement().getKey().getKey().contains("recipe/") || ((CraftAdvancement) event.getAdvancement()).getHandle().d() == null || event.getAdvancement().getKey().toString().contains("root"))
+        if (noAdvancementMessages)
             return;
-        String advancement = ((CraftAdvancement) event.getAdvancement()).getHandle().d().a().getString();
-        String type = ((CraftAdvancement) event.getAdvancement()).getHandle().d().e().a();
-        if (type.equals("challenge"))
-            printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + " has completed the challenge [" + advancement + "]");
-        else if (type.equals("goal"))
-            printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + " has reached the goal [" + advancement + "]");
-        else if (type.equals("task"))
-            printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + " has made the advancement [" + advancement + "]");
+        final Advancement advancement = event.getAdvancement();
+        final AdvancementDisplay display = advancement.getDisplay();
+        if (display == null || !display.shouldAnnounceChat())
+            return;
+        final NamespacedKey namespacedKey = advancement.getKey();
+        if (namespacedKey.getKey().contains("recipe/") || namespacedKey.toString().contains("/root"))
+            return;
+        final String intermediate;
+        switch (display.getType())
+        {
+            case CHALLENGE:    intermediate = " has completed the challenge ["; break;
+            case GOAL:        intermediate = " has reached the goal ["; break;
+            case TASK:        intermediate = " has made the advancement ["; break;
+            default:
+                return;
+        }
+        printToDiscord(MarkdownSanitizer.escape(event.getPlayer().getName()) + intermediate + display.getTitle() + "]");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
