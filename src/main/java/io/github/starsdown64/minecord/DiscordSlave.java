@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -171,7 +172,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onGuildUnavailable(GuildUnavailableEvent event)
+    public void onGuildUnavailable(@Nonnull GuildUnavailableEvent event)
     {
         if (event.getGuild().equals(channel.getGuild())) {
             if (master.getConnected())
@@ -182,7 +183,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onGuildAvailable(GuildAvailableEvent event)
+    public void onGuildAvailable(@Nonnull GuildAvailableEvent event)
     {
         if (event.getGuild().equals(channel.getGuild())) {
             long timeLost = System.currentTimeMillis() - master.getLastConnected();
@@ -194,7 +195,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onSessionDisconnect(SessionDisconnectEvent event)
+    public void onSessionDisconnect(@Nonnull SessionDisconnectEvent event)
     {
         if (master.getConnected())
             master.setLastConnected(event.getTimeDisconnected().toEpochSecond() * 1000);
@@ -203,7 +204,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onSessionRecreate(SessionRecreateEvent event)
+    public void onSessionRecreate(@Nonnull SessionRecreateEvent event)
     {
         long timeLost = System.currentTimeMillis() - master.getLastConnected();
         master.setConnected(true);
@@ -213,7 +214,7 @@ public class DiscordSlave extends ListenerAdapter
     }
 
     @Override
-    public void onSessionResume(SessionResumeEvent event)
+    public void onSessionResume(@Nonnull SessionResumeEvent event)
     {
         long timeLost = System.currentTimeMillis() - master.getLastConnected();
         master.setConnected(true);

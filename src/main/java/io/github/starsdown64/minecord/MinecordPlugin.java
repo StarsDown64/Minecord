@@ -30,7 +30,7 @@ import java.util.Locale;
 
 public class MinecordPlugin extends JavaPlugin implements Listener
 {
-    private FileConfiguration config = getConfig();
+    private final FileConfiguration config = getConfig();
     private final Object syncSleep = new Object();
     private final Object syncListM2D = new Object();
     private final Object syncListD2M = new Object();
@@ -57,6 +57,8 @@ public class MinecordPlugin extends JavaPlugin implements Listener
         getCommand("minecord_off").setExecutor(new CommandMinecordOff(this));
         hasVanish = getServer().getPluginManager().isPluginEnabled("SuperVanish") || getServer().getPluginManager().isPluginEnabled("PremiumVanish");
         slave = new DiscordSlave(this);
+
+        // Here Be Dragons
         new Thread(new Runnable()
         {
             @Override
